@@ -1,0 +1,44 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_CONNECTION_STRING")
+}
+
+model Contacto {
+  id_contacto                  BigInt              @id @default(autoincrement())
+  numero_telefono              String
+  direccion_correo_electronico String
+  direccion_entrega            Direccion_entrega[]
+
+  @@map("contacto")
+}
+
+model Direccion_entrega {
+  id_direccion_entrega BigInt @id @default(autoincrement())
+  id_direccion         BigInt
+  id_contacto          BigInt
+
+  contacto Contacto @relation(fields: [id_contacto], references: [id_contacto])
+  direccion Direccion @relation(fields: [id_direccion_entrega], references: [id_direccion])
+
+  @@map("direccion_entrega")
+}
+
+model Direccion {
+  id_direccion                    BigInt @id @default(autoincrement())
+  numero_identificacion_domicilio String
+  estado                          String
+  codigo_postal                   String
+  direccion_fisica                String
+  direccion_entrega Direccion_entrega[]
+  @@map("direccion")
+}
