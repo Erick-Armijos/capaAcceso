@@ -14,7 +14,7 @@ datasource db {
 }
 
 model Contacto {
-  id_contacto                  BigInt              @id @default(autoincrement())
+  id_contacto                  Int                 @id @default(autoincrement())
   numero_telefono              String
   direccion_correo_electronico String
   direccion_entrega            Direccion_entrega[]
@@ -23,22 +23,80 @@ model Contacto {
 }
 
 model Direccion_entrega {
-  id_direccion_entrega BigInt @id @default(autoincrement())
-  id_direccion         BigInt
-  id_contacto          BigInt
-
-  contacto Contacto @relation(fields: [id_contacto], references: [id_contacto])
-  direccion Direccion @relation(fields: [id_direccion_entrega], references: [id_direccion])
+  id_direccion_entrega Int       @id @default(autoincrement())
+  id_direccion         Int
+  id_contacto          Int
+  pedido               Pedido[]
+  contacto             Contacto  @relation(fields: [id_contacto], references: [id_contacto])
+  direccion            Direccion @relation(fields: [id_direccion_entrega], references: [id_direccion])
 
   @@map("direccion_entrega")
 }
 
 model Direccion {
-  id_direccion                    BigInt @id @default(autoincrement())
+  id_direccion                    Int                 @id @default(autoincrement())
   numero_identificacion_domicilio String
   estado                          String
   codigo_postal                   String
   direccion_fisica                String
-  direccion_entrega Direccion_entrega[]
+  direccion_entrega               Direccion_entrega[]
+
   @@map("direccion")
+}
+
+model Pedido {
+  id_pedido            Int               @id @default(autoincrement())
+  customer_id          Int
+  subtotal_mercancia   Float
+  cargos_de_entrega    Float
+  subtotal             Float
+  impuestos            Float
+  total                Float
+  id_direccion_entrega Int
+  id_metodo_de_pago    Int
+  id_ibo_recibe        Int
+  DireccionEntrega     Direccion_entrega @relation(fields: [id_direccion_entrega], references: [id_direccion_entrega])
+  MetodoDePago         MetodoDePago      @relation(fields: [id_metodo_de_pago], references: [id_metodo_pago])
+  Ibo                  Ibo               @relation(fields: [id_ibo_recibe], references: [id_ibo])
+  DetallePedido        DetallePedido[]
+    @@map("pedido")
+}
+
+model DetallePedido {
+  id_detalle_pedido Int      @id @default(autoincrement())
+  cantidad_articulo Int
+  total             Float
+  id_pedido         Int
+  id_articulo       Int
+  Pedido            Pedido   @relation(fields: [id_pedido], references: [id_pedido])
+  Articulo          Articulo @relation(fields: [id_articulo], references: [id_articulo])
+    @@map("detalle_pedido")
+}
+
+model Articulo {
+  id_articulo    Int             @id @default(autoincrement())
+  numero_surtido String
+  color          String
+  talla          Float
+  descripcion    String
+  precio         Float
+  DetallePedido  DetallePedido[]
+    @@map("articulo")
+}
+
+model Ibo {
+  id_ibo              Int      @id @default(autoincrement())
+  numero_ibo          String
+  nombre_ibo          String
+  numero_telefono_ibo String
+  PedidoRecibe        Pedido[]
+    @@map("ibo")
+}
+
+model MetodoDePago {
+  id_metodo_pago Int      @id @default(autoincrement())
+  metodo_de_pago String
+  descripcion    String
+  Pedido         Pedido[]
+    @@map("metodo_de_pago")
 }
